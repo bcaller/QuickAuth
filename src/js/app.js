@@ -1,3 +1,7 @@
+var Clay = require('pebble-clay');
+var clayConfig = require('./config');
+var clay = new Clay(clayConfig, null, { autoHandleEvents: false });
+
 var MAX_OTP_COUNT = 16;
 var MAX_LABEL_LENGTH = 20;
 var MAX_KEY_LENGTH = 128;
@@ -234,25 +238,23 @@ Pebble.addEventListener("appmessage",
 
 Pebble.addEventListener('showConfiguration', function(e) {
 	sendAppMessage({"idle_timeout":-1});
-
-		var url = 'http://oncloudvirtual.com/pebble/quickauth/v'+
-		APP_VERSION+
-		'?otp_count='+otp_count+
-		'&theme='+aplite_theme+
-		'&basalt_colors='+basalt_colors+
-		'&font_style='+font_style+
-		'&idle_timeout='+idle_timeout+
-		'&window_layout='+window_layout+
-		'&watch_version='+getWatchVersion();
-
-	if (debug)
-		console.log("INFO: "+url);
-	Pebble.openURL(url);
+	Pebble.openURL(clay.generateUrl());
 });
+
+function getClaySettingsWithoutNewKey(r) {
+	return JSON.parse(decodeURIComponent(r));
+}
+
+function hexify(x) {
+	return ("00000" + x.toString(16)).match(/[\dA-F]{6}$/i)[0].toUpperCase();
+}
 
 Pebble.addEventListener("webviewclosed",
 							function(e) {
-								var configuration = JSON.parse(decodeURIComponent(e.response));
+								if (!(e && e.response)) {
+									return;
+								}
+  								var configuration = getClaySettingsWithoutNewKey(e.response);
 								var config ={};
 								var i = 0;
 
@@ -283,11 +285,10 @@ Pebble.addEventListener("webviewclosed",
 									config.theme = aplite_theme;
 								}
 								
-								if(configuration.basalt_colors && configuration.basalt_colors.length == 12 && configuration.basalt_colors.localeCompare(basalt_colors) !== 0) {
+								if(configuration.basalt_fg_color && configuration.basalt_bg_color) {
 									if (debug)
 										console.log("INFO: Colors changed");
-									
-									basalt_colors = configuration.basalt_colors;
+									basalt_colors = hexify(configuration.basalt_fg_color.value) + hexify(configuration.basalt_bg_color.value);
 									setItem("basalt_colors", basalt_colors);
 									config.basalt_colors = basalt_colors;
 								}
@@ -310,11 +311,11 @@ Pebble.addEventListener("webviewclosed",
 									config.window_layout = window_layout;
 								}
 								
-								if(!isNaN(configuration.idle_timeout) && configuration.idle_timeout != idle_timeout) {
+								if(configuration.idle_timeout && configuration.idle_timeout.value != idle_timeout) {
 									if (debug)
 										console.log("INFO: Idle timeout changed");
 									
-									idle_timeout = configuration.idle_timeout;
+									idle_timeout = parseInt(configuration.idle_timeout.value);
 									setItem("idle_timeout",idle_timeout);
 								}
 								// Always send idle_timeout to reset it after
@@ -323,14 +324,14 @@ Pebble.addEventListener("webviewclosed",
 								
 								if(configuration.label && configuration.secret) {
 									
-									var secret = configuration.secret
+									var secret = configuration.secret.value
 										.replace(/0/g,"O")	// replace 0 with O
 										.replace(/1/g, "I")	// replace 1 with I
 										.replace(/\W/g, '')	// replace non-alphanumeric characters
 										.replace(/_/g, '')	// replace underscore
 										.toUpperCase()
 										.substring(0, MAX_KEY_LENGTH);
-									var label = configuration.label
+									var label = configuration.label.value
 										.replace(/:/g, '')
 										.substring(0, MAX_LABEL_LENGTH);
 									var secretPair = label + ":" + secret;
@@ -365,9 +366,12 @@ Pebble.addEventListener("webviewclosed",
 										if (debug)
 											console.log("WARN: Too many codes..."+otp_count);
 									}
+									delete configuration["secret"];
+									delete configuration["label"];
 								}
 								if (debug)
 									console.log("INFO: Uploading config");
 								sendAppMessage(config);
+								clay.getSettings(JSON.stringify(configuration))
 							}
 						);

@@ -1,6 +1,8 @@
 {
     "author": "Kevin Cooper",
-    "dependencies": {},
+    "dependencies": {
+        "pebble-clay": "^1.0.2"
+    },
     "keywords": [],
     "name": "quickauth",
     "pebble": {
@@ -8,7 +10,7 @@
             "configurable"
         ],
         "displayName": "QuickAuth",
-        "enableMultiJS": false,
+        "enableMultiJS": true,
         "messageKeys": [
             "key_count",
             "request_key",
@@ -107,5 +109,5 @@
             "watchface": false
         }
     },
-    "version": "2.5.0"
+    "version": "3.0.0"
 }
