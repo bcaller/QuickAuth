@@ -288,7 +288,7 @@ void request_delete(int key_id) {
 	if (DEBUG)
 		APP_LOG(APP_LOG_LEVEL_DEBUG, "INFO: Pebble Requesting delete: %s", otp_keys[key_id]);
 
-	sendJSMessage(MyTupletCString(JS_DELETE_KEY, otp_keys[key_id]));
+	sendJSMessage(MyTupletCString(MESSAGE_KEY_delete_key, otp_keys[key_id]));
 }
 
 void out_sent_handler(DictionaryIterator *sent, void *context) {
@@ -383,20 +383,20 @@ static void in_received_handler(DictionaryIterator *iter, void *context) {
 		APP_LOG(APP_LOG_LEVEL_DEBUG, "INFO: Message Received");
 	
 	resetIdleTime();
-	Tuple *key_count_tuple = dict_find(iter, JS_KEY_COUNT);
-	Tuple *key_tuple = dict_find(iter, JS_TRANSMIT_KEY);
-	Tuple *timezone_tuple = dict_find(iter, JS_TIMEZONE);
-	Tuple *key_delete_tuple = dict_find(iter, JS_DELETE_KEY);
-	Tuple *font_style_tuple = dict_find(iter, JS_FONT_STYLE);
-	Tuple *delete_all_tuple = dict_find(iter, JS_DELETE_ALL);
-	Tuple *idle_timeout_tuple = dict_find(iter, JS_IDLE_TIMEOUT);
-	Tuple *key_request_tuple = dict_find(iter, JS_REQUEST_KEY);
-	Tuple *window_layout_tuple = dict_find(iter, JS_WINDOW_LAYOUT);
+	Tuple *key_count_tuple = dict_find(iter, MESSAGE_KEY_key_count);
+	Tuple *key_tuple = dict_find(iter, MESSAGE_KEY_transmit_key);
+	Tuple *timezone_tuple = dict_find(iter, MESSAGE_KEY_timezone);
+	Tuple *key_delete_tuple = dict_find(iter, MESSAGE_KEY_delete_key);
+	Tuple *font_style_tuple = dict_find(iter, MESSAGE_KEY_font_style);
+	Tuple *delete_all_tuple = dict_find(iter, MESSAGE_KEY_delete_all);
+	Tuple *idle_timeout_tuple = dict_find(iter, MESSAGE_KEY_idle_timeout);
+	Tuple *key_request_tuple = dict_find(iter, MESSAGE_KEY_request_key);
+	Tuple *window_layout_tuple = dict_find(iter, MESSAGE_KEY_window_layout);
 	
 	#ifdef PBL_COLOR
-		Tuple *basalt_colors_tuple = dict_find(iter, JS_BASALT_COLORS);
+		Tuple *basalt_colors_tuple = dict_find(iter, MESSAGE_KEY_basalt_colors);
 	#else
-		Tuple *aplite_theme_tuple = dict_find(iter, JS_THEME);
+		Tuple *aplite_theme_tuple = dict_find(iter, MESSAGE_KEY_theme);
 	#endif
 	
 	// Act on the found fields received
@@ -573,7 +573,7 @@ void request_key(int code_id) {
 	if (DEBUG)
 		APP_LOG(APP_LOG_LEVEL_DEBUG, "INFO: Requesting code: %d", code_id);
 
-	sendJSMessage(TupletInteger(JS_REQUEST_KEY, code_id));
+	sendJSMessage(TupletInteger(MESSAGE_KEY_request_key, code_id));
 }
 
 void send_key(int requested_key) {
@@ -591,7 +591,7 @@ void send_key(int requested_key) {
 	else
 		strcat(keylabelpair,"NULL");
 
-	sendJSMessage(MyTupletCString(JS_TRANSMIT_KEY, keylabelpair));
+	sendJSMessage(MyTupletCString(MESSAGE_KEY_transmit_key, keylabelpair));
 }
 
 void load_persistent_data() {	

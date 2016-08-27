@@ -35,22 +35,6 @@ enum {
 	PS_SECRET = 0x40 // Needs 16 spaces, should always be last
 };
 
-// JScript Keys
-enum {
-	JS_KEY_COUNT,
-	JS_REQUEST_KEY,
-	JS_TRANSMIT_KEY,
-	JS_TIMEZONE,
-	JS_DISPLAY_MESSAGE,
-	JS_THEME,
-	JS_DELETE_KEY,
-	JS_FONT_STYLE,
-	JS_DELETE_ALL,
-	JS_IDLE_TIMEOUT,
-	JS_BASALT_COLORS,
-	JS_WINDOW_LAYOUT
-};
-
 // Animation Directions
 enum { 
 	UP,
